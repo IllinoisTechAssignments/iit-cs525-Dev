@@ -35,6 +35,9 @@ int clockPointer = 0;
 // "lfuPointer" is used by LFU algorithm to store the least frequently used page frame's position. It speeds up operation  from 2nd replacement onwards.
 int lfuPointer = 0;
 
+// ***** Replacement Strategy Functions ***** //
+#pragma region Replacement Strategy Functions
+
 // Defining FIFO (First In First Out) function
 extern void FIFO(BM_BufferPool *const bm, PageFrame *page)
 {
@@ -215,7 +218,10 @@ extern void CLOCK(BM_BufferPool *const bm, PageFrame *page)
 	}
 }
 
+#pragma endregion
+
 // ***** BUFFER POOL FUNCTIONS ***** //
+#pragma region BUFFER POOL FUNCTIONS
 
 /* 
    This function creates and initializes a buffer pool with numPages page frames.
@@ -303,8 +309,10 @@ extern RC forceFlushPool(BM_BufferPool *const bm)
 	return RC_OK;
 }
 
+#pragma endregion
 
 // ***** PAGE MANAGEMENT FUNCTIONS ***** //
+#pragma region PAGE MANAGEMENT FUNCTIONS
 
 // This function marks the page as dirty indicating that the data of the page has been modified by the client
 extern RC markDirty (BM_BufferPool *const bm, BM_PageHandle *const page)
@@ -516,8 +524,10 @@ extern RC pinPage (BM_BufferPool *const bm, BM_PageHandle *const page,
 	}	
 }
 
+#pragma endregion
 
 // ***** STATISTICS FUNCTIONS ***** //
+#pragma region STATISTICS FUNCTIONS
 
 // This function returns an array of page numbers.
 extern PageNumber *getFrameContents (BM_BufferPool *const bm)
@@ -577,3 +587,5 @@ extern int getNumWriteIO (BM_BufferPool *const bm)
 {
 	return writeCount;
 }
+
+#pragma endregion
