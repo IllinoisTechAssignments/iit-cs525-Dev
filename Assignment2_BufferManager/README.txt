@@ -1,53 +1,80 @@
+CONTRIBUTIONS
+=============
+
+Developed by Laxmi Naarayanan -> HELPER FUNCTIONS, REPLACEMENT STRATEGY FUNCTIONS and BUFFER POOL FUNCTIONS
+Developed by Lakshey -> PAGE MANAGEMENT FUNCTIONS and STATISTICS FUNCTIONS
+
 RUNNING THE SCRIPT
 =========================
 
-1) Go to Project root (assign2) using Terminal.
+1) Go to Project root (Assignment2_BufferManager) using Terminal.
 
-2) Type ls to list the files and check that we are in the correct directory.
+2) Type "make clean" to delete old compiled .o files.
 
-3) Type "make clean" to delete old compiled .o files.
+3) Type "make" to compile all project files 
 
-4) Type "make" to compile all project files including "test_assign2_1.c" file 
-
-5) Type "make run_test1" to run "test_assign2_1.c" file.
-
-6) Type "make test2" to compile Custom test file "test_assign2_2.c".
-
-7) Type "make run_test2" to run "test_assign2_2.c" file.
+4) Type "make run_test1" to run "test_assign2_1.c" file.
 
 
 SOLUTION DESCRIPTION
 ===========================
 
-MakeFile was made using following tutorial -
-http://mrbook.org/blog/tutorials/make/
+We have implemented Buffer Management with implementing replacement strategies along with ensuring proper memory management.
 
-We have ensured proper memory management while making this storage manager by freeing any reserved space wherever possible. We have implemented FIFO (First In First Out), LRU (Least Recently Used), LFU (Least Frequently Used) and CLOCK page replacement algorithms.
+1) HELPER FUNCTIONS
+====================
+writeBlockToDisk(...)
+--> writes a page in the buffer pool to the disk
 
-1. BUFFER POOL FUNCTIONS
+setNewPageToPageFrame(...)
+--> sets the new page into the page frame
+
+2) PAGE REPLACEMENT ALGORITHM FUNCTIONS
+=========================================
+
+The page replacement strategy functions implement FIFO, LRU, LFU, CLOCK algorithms which are used while pinning a page. If the buffer pool is full and a new page has to be pinned, then a page should be replaced from the buffer pool. These page replacement strategies determine which page has to be replaced from the buffer pool.
+
+FIFO(...)
+--> First In First Out (FIFO) is similar to a queue implementation
+--> The First page into the Buffer Pool is the First to be replaced
+
+LFU(...)
+--> Least Frequently Used (LFU) removes the page frame which is used the least number of times
+--> The field refNum keeps a count of the page frames being accessed by the client.
+--> Set the least frequently used pointer to the page frame having the lowest value of refNum.
+
+LRU(...)
+--> Least Recently Used (LRU) removes the page frame which is least recent used amongst other page frames in the buffer pool.
+--> The field hitNum keeps a count of of the page frames being pinned by the client.
+--> Replace the page frame which has the lowest value of hitNum.
+
+CLOCK(...)
+--> Replaces the last added page frame in the buffer pool using hitnum and clockPointer
+
+3) BUFFER POOL FUNCTIONS
 ===========================
 
 The buffer pool related functions are used to create a buffer pool for an existing page file on disk. The buffer pool is created in memory while the page file is present on disk. We make the use of Storage Manager (Assignment 1) to perform operations on page file on disk.
 
 initBufferPool(...)
---> This function creates a new buffer pool in memory.
---> The parameter numPages defines the size of the buffer i.e. number of page frames that can be stored in the buffer.
+--> Creates a new buffer pool in memory.
+--> The parameter numPages defines the size of the buffer
 --> pageFileName stores the name of the page file whose pages are being cached in memory.
---> strategy represents the page replacement strategy (FIFO, LRU, LFU, CLOCK) that will be used by this buffer pool
+--> strategy represents the page replacement strategy
 --> stratData is used to pass parameters if any to the page replacement strategy. 
 
 shutdownBufferPool(...)
---> This function shutsdown i.e. destroys the buffer pool.
+--> This function destroys the buffer pool.
 --> It free up all resources/memory space being used by the Buffer Manager for the buffer pool.
 --> Before destroying the buffer pool, we call forceFlushPool(...) which writes all the dirty pages (modified pages) to the disk.
 --> If any page is being used by any client, then it throws RC_PINNED_PAGES_IN_BUFFER error.
 
 forceFlushPool(...)
---> This function writes all the dirty pages (modified pages whose dirtyBit = 1) to the disk.
---> It checks all the page frames in buffer pool and checks if it's dirtyBit = 1 (which indicates that content of the page frame has been modified by some client) and fixCount = 0 (which indicates no user is using that page Frame) and if both conditions are satisfied then it writes the page frame to the page file on disk.
+--> This function writes all the dirty pages (modified pages whose isDirtyPage = 1) to the disk.
+--> It checks all the page frames in buffer pool and checks if it's isDirtyPage = 1 (which indicates that content of the page frame has been modified by some client) and fixCount = 0 (which indicates no user is using that page Frame) and if both conditions are satisfied then it writes the page frame to the page file on disk.
 
 
-2. PAGE MANAGEMENT FUNCTIONS
+4) PAGE MANAGEMENT FUNCTIONS
 ==========================
 
 The page management related functions are used to load pages from disk into the buffer pool (pin pages), remove a page frame from buffer pool (unpin page), mark page as dirty and force a page fram to be written to the disk.
@@ -72,7 +99,7 @@ forcePage(....)
 --> When the page is found, it uses the Storage Manager functions to write the content of the page frame to the page file on disk. After writing, it sets dirtyBit = 0 for that page.
 
 
-3. STATISTICS FUNCTIONS
+5) STATISTICS FUNCTIONS
 ===========================
 
 The statistics related functions are used to gather some information about the buffer pool. So it provides various statistical information about the buffer pool.
@@ -99,37 +126,3 @@ getNumReadIO(...)
 getNumWriteIO(...)
 --> This function returns the count of total number of IO writes performed by the buffer pool i.e. number of pages written to the disk.
 --> We maintain this data using the writeCount variable. We initialize writeCount to 0 when buffer pool is initialized and increment it whenever a page frame is written to disk.
-
-
-4. PAGE REPLACEMENT ALGORITHM FUNCTIONS
-=========================================
-
-The page replacement strategy functions implement FIFO, LRU, LFU, CLOCK algorithms which are used while pinning a page. If the buffer pool is full and a new page has to be pinned, then a page should be replaced from the buffer pool. These page replacement strategies determine which page has to be replaced from the buffer pool.
-
-FIFO(...)
---> First In First Out (FIFO) is the most basic page replacement strategy used.
---> FIFO is generally like a queue where the page which comes first in the buffer pool is in front and that page will be replaced first if the buffer pool is full.
---> Once the page is located, we write the content of the page frame to the page file on disk and then add the new page at that location.
-
-LFU(...)
---> Least Frequently Used (LFU) removes the page frame which is used the least times (lowest number of times) amongst the other page frames in the buffer pool.
---> The variable (field) refNum in each page frame serves this purpose. refNum keeps a count of of the page frames being accessed by the client.
---> So when we are using LFU, we just need to find the position of the page frame having the lowest value of refNum.
---> We then write the content of the page frame to the page file on disk and then add the new page at that location.
---> Also, we store the position of the least frequently used page frame in a variable "lfuPointer" so that is useful next time when we are replacing a page in the buffer pool. It reduces the number of iterations from 2nd page replacement onwards.
-
-LRU(...)
---> Least Recently Used (LRU) removes the page frame which hasn't been used for a long time (least recent) amongst the other page frames in the buffer pool.
---> The variable (field) hitNum in each page frame serves this purpose. hitNum keeps a count of of the page frames being accessed and pinned by the client. Also a global variable "hit" is used for this purpose.
---> So when we are using LRU, we just need to find the position of the page frame having the lowest value of hitNum.
---> We then write the content of the page frame to the page file on disk and then add the new page at that location.
-
-CLOCK(...)
---> CLOCK algorithm keeps a track of the last added page frame in the buffer pool. Also, we use a clockPointer which is a counter to point the page frames in the buffer pool.
---> When a page has to be replaced we check the "clockPointer"s position. If that position's page's hitNum is not 1 (i.e. it wasn't the last page added), then replace that page with the new page.
---> In case, hitNum = 1, then we set it's hitNum = 0, increment clockPointer i.e. we go to the next page frame to check the same thing. This process goes on until we find a position to replace the page. We set hitNum = 0 so that we don't enter into an infinite loop.
-
- 
-TEST CASES 2
-===============
-We have added additional test cases in source file test_assign2_2.c. The instructions to run these test cases is mentioned in this README file. These test cases test LFU and CLOCK page replacement strategies.

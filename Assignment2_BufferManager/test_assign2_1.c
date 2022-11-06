@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// var to store the current test's name
+// var to store the current test name
 char *testName;
 
 // check whether two the content of a buffer pool is the same as an expected content 
