@@ -43,6 +43,7 @@ int findFreeSlot(char *data, int recordSize)
 }
 
 
+#pragma region TABLE AND RECORD MANAGER FUNCTIONS
 // ******** TABLE AND RECORD MANAGER FUNCTIONS ******** //
 
 // This function initializes the Record Manager
@@ -239,7 +240,9 @@ extern int getNumTuples (RM_TableData *rel)
 	return recordManager->tuplesCount;
 }
 
+#pragma endregion
 
+#pragma region RECORD FUNCTIONS
 // ******** RECORD FUNCTIONS ******** //
 
 // This function inserts a new record in the table referenced by "rel" and updates the 'record' parameter with the Record ID of he newly inserted record
@@ -418,7 +421,9 @@ extern RC getRecord (RM_TableData *rel, RID id, Record *record)
 	return RC_OK;
 }
 
+#pragma endregion
 
+#pragma region SCAN FUNCTIONS
 // ******** SCAN FUNCTIONS ******** //
 
 // This function scans all the records using the condition
@@ -600,7 +605,9 @@ extern RC closeScan (RM_ScanHandle *scan)
 	return RC_OK;
 }
 
+#pragma endregion
 
+#pragma region SCHEMA FUNCTIONS
 // ******** SCHEMA FUNCTIONS ******** //
 
 // This function returns the record size of the schema referenced by "schema"
@@ -663,8 +670,9 @@ extern RC freeSchema (Schema *schema)
 	free(schema);
 	return RC_OK;
 }
+#pragma endregion
 
-
+#pragma region DEALING WITH RECORDS AND ATTRIBUTE VALUES
 // ******** DEALING WITH RECORDS AND ATTRIBUTE VALUES ******** //
 
 // This function creates a new record in the schema referenced by "schema"
@@ -873,3 +881,5 @@ extern RC setAttr (Record *record, Schema *schema, int attrNum, Value *value)
 	}			
 	return RC_OK;
 }
+
+#pragma endregion
